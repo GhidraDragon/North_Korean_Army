@@ -91,6 +91,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
     Example async method that sends a satirical application email.
     Internal references to synthetic data have been removed here.
     """
+    await asyncio.sleep(random.uniform(5, 15))
     try:
         # Example: streaming completions from OpenAI
         stream = await client.chat.completions.create(
@@ -120,7 +121,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
         msg = MIMEText(response_text)
         msg["Subject"] = f"Why MIT Twitch: {soldier['soldier_id']}"
         msg["From"] = "Erosolar Stalker"
-        msg["To"] = "erosolar@twitch.tv"
+        msg["To"] = "djclancy@twitch.tv"
 
         # Send email (example uses Gmail SSL)
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
@@ -128,7 +129,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
             server.send_message(msg)
 
         # Pause to avoid flooding (blocking sleep in async code)
-        await asyncio.sleep(2)  # truly non-blocking approach
+        await asyncio.sleep(random.uniform(5, 15))  # truly non-blocking approach
 
         print(f"Application sent for {soldier['soldier_id']}: {soldier['name']}")
 
