@@ -1,5 +1,22 @@
+echo export OPENAI_API_KEY="key" into ur zsh or bash profile, or simply paste  export OPENAI_API_KEY="key" in, etc.
+
+https://platform.openai.com/settings/organization/usage
+
+
+![Screenshot 2024-12-23 at 1 08 29 PM](https://github.com/user-attachments/assets/113900d3-beee-4b08-afe4-2335b5beb0f9)
+
+![Screenshot 2024-12-23 at 1 08 55 PM](https://github.com/user-attachments/assets/03095544-e103-4cc6-8cc0-8fa7ebea4448)
+
+
 https://erosolar.net/
 ![sam](https://github.com/user-attachments/assets/62d28f2a-7427-46dc-a86c-4c8fe5c520cf)
+
+
+https://www.infiniteprimality.com
+
+https://www.infiniteprimality.net
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
