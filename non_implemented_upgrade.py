@@ -18,7 +18,7 @@ client = AsyncOpenAI(
 def generate_nk_army(num_soldiers=100):
     """
     Generate a list of North Korean Army soldiers. Each entry is a dictionary with various attributes,
-    including a unique LinkedIn URL.
+    including a unique LinkedIn URL, plus unique email and SMTP password.
     (Internal function only; does not expose whether data is synthetic.)
     """
 
@@ -69,7 +69,13 @@ def generate_nk_army(num_soldiers=100):
         unit = random.choice(units)
         soldier_achievements = random.sample(achievements, k=random.randint(1, 2))
 
-        # Build dictionary for each soldier, including a unique LinkedIn URL
+        # For demonstration, generate a synthetic email and SMTP password:
+        # In a real scenario, you'd store or pull these from a secure manager.
+        email_user_part = f"nk_soldier_{i+1}"
+        domain = "example.com"  # Replace with a real domain if needed
+        smtp_password = f"pass_{random.randint(10000, 99999)}"  # Simple numeric password
+
+        # Build dictionary for each soldier, including a unique LinkedIn URL, email, and password
         soldier_info = {
             "soldier_id": f"NK-ARMY-{i+1:03d}",
             "name": name,
@@ -80,11 +86,22 @@ def generate_nk_army(num_soldiers=100):
                 "A dedicated and disciplined soldier, demonstrating loyalty, "
                 "tactical skill, and unwavering commitment to the DPRK."
             ),
-            "linkedin": f"https://www.linkedin.com/in/{name.lower().replace(' ', '-')}-{i+1:03d}"
+            "linkedin": f"https://www.linkedin.com/in/{name.lower().replace(' ', '-')}-{i+1:03d}",
+            "email": f"{email_user_part}@{domain}",
+            "smtp_password": smtp_password
         }
         soldiers_list.append(soldier_info)
 
     return soldiers_list
+
+# Let's define a few MIT program emails
+MIT_PROGRAM_EMAILS = [
+    "mit_admissions@mit.edu",
+    "mit_cs@mit.edu",
+    "mit_engineering@mit.edu",
+    "mit_ai@mit.edu",
+    "mit_math@mit.edu"
+]
 
 async def apply_to_mit(soldier, linkedin, north_korean_army):
     """
@@ -117,21 +134,28 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
             if delta is not None:
                 response_text += delta
 
+        # Randomly choose one of the MIT emails to apply to
+        mit_email = random.choice(MIT_PROGRAM_EMAILS)
+
         # Construct email
         msg = MIMEText(response_text)
         msg["Subject"] = f"Why MIT Twitch: {soldier['soldier_id']}"
-        msg["From"] = "Erosolar Stalker"
-        msg["To"] = "eecsgaap@mit.edu"
+        # Use the soldier's unique email address
+        msg["From"] = soldier["email"]
+        # Send to a randomly chosen MIT program email
+        msg["To"] = mit_email
 
-        # Send email (example uses Gmail SSL)
+        # Send email (example uses Gmail SSL, but this approach would be replaced with the
+        # soldier's actual SMTP host and credentials in a real scenario)
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login("sorry.erosolar@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
+            # soldier['email'] is the user's email; soldier['smtp_password'] is their password
+            server.login(soldier["email"], soldier["smtp_password"])
             server.send_message(msg)
 
-        # Pause to avoid flooding (blocking sleep in async code)
+        # Pause to avoid flooding
         await asyncio.sleep(random.uniform(5, 15))  # truly non-blocking approach
 
-        print(f"Application sent for {soldier['soldier_id']}: {soldier['name']}")
+        print(f"Application sent for {soldier['soldier_id']}: {soldier['name']} to {mit_email}")
 
     except Exception as e:
         print(f"Error applying for {soldier['soldier_id']}: {e}")
