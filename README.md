@@ -1,3 +1,6 @@
+![wwdc](https://github.com/user-attachments/assets/3a9d52ad-44a4-460c-a08d-83e22f1978a6)
+
+
 echo export OPENAI_API_KEY="key" into ur zsh or bash profile, or simply paste  export OPENAI_API_KEY="key" in, etc.
 
 https://platform.openai.com/settings/organization/usage
