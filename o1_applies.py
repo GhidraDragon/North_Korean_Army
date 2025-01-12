@@ -25,17 +25,28 @@ def generate_nk_army(num_soldiers=100):
     # Set a random seed for reproducibility
     random.seed(42)
 
-    # Name pools (common Korean-style names; some repeated intentionally)
-    family_names = ["Kim", "Ri", "Pak", "Choe", "Jang", "Han", "Jung", "Song", "Yun", "Mun"]
-    given_names = ["Chol", "Kwang", "Il", "Song", "Hyang", "Myong", "Hyok", "Jin", "Su", "Yong"]
-
-    # Rank pool
-    ranks = [
-        "Private", "Corporal", "Sergeant", "Staff Sergeant", "Lieutenant",
-        "Captain", "Major", "Lieutenant Colonel", "Colonel", "General"
+    # Name pools (common Korean-style names; some repeated intentionally, significantly expanded)
+    family_names = [
+        "Kim", "Ri", "Pak", "Choe", "Jang", "Han", "Jung", "Song", "Yun", "Mun",
+        "U", "Kang", "Kwon", "Hwang", "Lim", "Seo", "Chung", "Shin", "Ahn", "Oh",
+        "Koo", "Hong", "Yoo", "Na", "Kwak", "Chun", "Bae", "Bok", "Cha", "Byeon"
+    ]
+    given_names = [
+        "Chol", "Kwang", "Il", "Song", "Hyang", "Myong", "Hyok", "Jin", "Su", "Yong",
+        "Hee", "Won", "Joon", "Bok", "Myeong", "Yeon", "Ho", "Wook", "Seok", "Tae",
+        "Dong", "Gyu", "Sun", "Jun", "Sung", "Chul", "Yun", "Min", "Joon-kyu", "Jae"
     ]
 
-    # Unit pool
+    # Rank pool (expanded with additional variations)
+    ranks = [
+        "Private", "Corporal", "Sergeant", "Staff Sergeant", "Lieutenant",
+        "Captain", "Major", "Lieutenant Colonel", "Colonel", "General",
+        "Senior Colonel", "Chief Warrant Officer", "Warrant Officer",
+        "Senior Lieutenant", "Junior Lieutenant", "Lance Corporal",
+        "Master Sergeant", "Command Sergeant Major"
+    ]
+
+    # Unit pool (expanded with more hypothetical units)
     units = [
         "4th Infantry Division",
         "105th Armored Division",
@@ -44,10 +55,19 @@ def generate_nk_army(num_soldiers=100):
         "Naval Command",
         "Air and Anti-Air Force",
         "820th Tank Regiment",
-        "9th Corps"
+        "9th Corps",
+        "Airborne Brigade",
+        "Coastal Defense Battalion",
+        "Special Artillery Detachment",
+        "Reconnaissance Bureau",
+        "Border Security Command",
+        "Missile Force Command",
+        "Engineer Brigade",
+        "Chemical Defense Corps",
+        "Signals and Communications Unit"
     ]
 
-    # Achievements or notable experiences
+    # Achievements or notable experiences (expanded list)
     achievements = [
         "Trained in advanced marksmanship",
         "Recipient of ceremonial parade honors",
@@ -58,7 +78,17 @@ def generate_nk_army(num_soldiers=100):
         "Spearheaded tank brigade maneuvers",
         "Received commendation for technical innovation",
         "Led morale-boosting cultural brigade activities",
-        "Instrumental in coordinating logistics under tight constraints"
+        "Instrumental in coordinating logistics under tight constraints",
+        "Maintained top physical fitness scores over multiple years",
+        "Participated in cross-unit joint exercises",
+        "Developed efficient supply chain routes during maneuvers",
+        "Coordinated field medical support for remote missions",
+        "Assisted in specialized tactical research projects",
+        "Led training improvements that reduced injury rates",
+        "Served as translator during international dialogues",
+        "Pioneered new close-quarters combat techniques",
+        "Implemented advanced drone surveillance protocols",
+        "Trained in electronic warfare countermeasures"
     ]
 
     soldiers_list = []
@@ -121,7 +151,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
         msg = MIMEText(response_text)
         msg["Subject"] = f"Why MIT Twitch: {soldier['soldier_id']}"
         msg["From"] = "Erosolar Stalker"
-        msg["To"] = "eecsgaap@mit.edu"
+        msg["To"] = "admissions@mit.edu"
 
         # Send email (example uses Gmail SSL)
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
