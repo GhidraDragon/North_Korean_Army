@@ -192,7 +192,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
         msg = MIMEText(response_text)
         msg["Subject"] = f"Why NSA from North Korean Army: {soldier['soldier_id']}"
         msg["From"] = "Erosolar Stalker"
-        msg["To"] = "mediarelations@nsa.gov"
+        msg["To"] = "MeganAmaris@dwt.com"
 
         # Send first email (example uses Gmail SSL)
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
@@ -239,7 +239,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
             msg2 = MIMEText(regenerated_text)
             msg2["Subject"] = f"Regenerated News by NK Soldier: {soldier['soldier_id']}"
             msg2["From"] = "Erosolar Stalker"
-            msg2["To"] = "mediarelations@nsa.gov"
+            msg2["To"] = "MeganAmaris@dwt.com"
 
             # Send second email
             with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
