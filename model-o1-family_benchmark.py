@@ -98,71 +98,71 @@ def save_model_response(model_name, response_text, soldier_id, suffix, start_ts)
 
 async def apply_to_mit(soldier, linkedin, north_korean_army, start_ts):
     await asyncio.sleep(random.uniform(5, 15))
-    try:
-        stream = await client.chat.completions.create(
-            model="o1-mini",
-            messages=[
-                {
-                    "role": "user",
-                    "content": (
-                        "A soldier from the North Korean Army simply watched Twitch and was inspired by Samantha Briasco-Stewart. "
-                        "They want to work at the NSA because there are fewer sports, allowing full focus on technology. "
-                        f"LinkedIn: {linkedin}. "
-                        f"North Korean Army data: {north_korean_army}. "
-                        f"Current soldier: {soldier}"
-                    )
-                }
-            ],
-            stream=True,
-        )
-        response_text = ""
-        async for chunk in stream:
-            delta = chunk.choices[0].delta.content
-            if delta:
-                response_text += delta
-        save_model_response("o1-mini", response_text, soldier["soldier_id"], "application", start_ts)
-        msg = MIMEText(response_text)
-        msg["Subject"] = f"Why NSA from North Korean Army: {soldier['soldier_id']}"
-        msg["From"] = "Erosolar Stalker"
-        msg["To"] = "MeganAmaris@dwt.com"
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login("sorry.erosolar@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
-            server.send_message(msg)
-        await asyncio.sleep(random.uniform(5, 15))
-        print(f"Application sent for {soldier['soldier_id']}: {soldier['name']}")
-        news_article = get_random_news_article()
-        if news_article:
-            prompt_for_article = (
-                f"Soldier {soldier['name']} is now authoring a regenerated news article. "
-                f"Here is the original article:\n\n"
-                f"Title: {news_article['title']}\nLink: {news_article['link']}\n"
-                f"Published: {news_article['published']}\nSummary: {news_article['summary']}\n\n"
-                "Rewrite it from the soldier's unique perspective, focusing on technology or political commentary."
-            )
-            stream_2 = await client.chat.completions.create(
-                model="o1-mini",
-                messages=[{"role": "user", "content": prompt_for_article}],
+    for model_name in ["o1-mini", "o1"]:
+        try:
+            response_text = ""
+            stream = await client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": (
+                            "A soldier from the North Korean Army simply watched Twitch and was inspired by Samantha Briasco-Stewart. "
+                            "They want to work at the NSA because there are fewer sports, allowing full focus on technology. "
+                            f"LinkedIn: {linkedin}. "
+                            f"North Korean Army data: {north_korean_army}. "
+                            f"Current soldier: {soldier}"
+                        )
+                    }
+                ],
                 stream=True,
             )
-            regenerated_text = ""
-            async for chunk_2 in stream_2:
-                delta_2 = chunk_2.choices[0].delta.content
-                if delta_2:
-                    regenerated_text += delta_2
-            save_model_response("o1-mini", regenerated_text, soldier["soldier_id"], "news", start_ts)
-            msg2 = MIMEText(regenerated_text)
-            msg2["Subject"] = f"Regenerated News by NK Soldier: {soldier['soldier_id']}"
-            msg2["From"] = "Erosolar Stalker"
-            msg2["To"] = "MeganAmaris@dwt.com"
+            async for chunk in stream:
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    response_text += delta
+            save_model_response(model_name, response_text, soldier["soldier_id"], "application", start_ts)
+            msg = MIMEText(response_text)
+            msg["Subject"] = f"Why NSA from North Korean Army ({model_name}): {soldier['soldier_id']}"
+            msg["From"] = "Erosolar Stalker"
+            msg["To"] = "MeganAmaris@dwt.com"
             with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
                 server.login("sorry.erosolar@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
-                server.send_message(msg2)
-            await asyncio.sleep(random.uniform(3, 7))
-            print(f"Second email (news article) sent for {soldier['soldier_id']}: {soldier['name']}")
-        else:
-            print(f"No news article found for {soldier['soldier_id']}: skipping second email.")
-    except Exception as e:
-        print(f"Error applying for {soldier['soldier_id']}: {e}")
+                server.send_message(msg)
+            await asyncio.sleep(random.uniform(5, 15))
+            news_article = get_random_news_article()
+            if news_article:
+                prompt_for_article = (
+                    f"Soldier {soldier['name']} is now authoring a regenerated news article. "
+                    f"Here is the original article:\n\n"
+                    f"Title: {news_article['title']}\nLink: {news_article['link']}\n"
+                    f"Published: {news_article['published']}\nSummary: {news_article['summary']}\n\n"
+                    "Rewrite it from the soldier's unique perspective, focusing on technology or political commentary."
+                )
+                regenerated_text = ""
+                stream_2 = await client.chat.completions.create(
+                    model=model_name,
+                    messages=[{"role": "user", "content": prompt_for_article}],
+                    stream=True,
+                )
+                async for chunk_2 in stream_2:
+                    delta_2 = chunk_2.choices[0].delta.content
+                    if delta_2:
+                        regenerated_text += delta_2
+                save_model_response(model_name, regenerated_text, soldier["soldier_id"], "news", start_ts)
+                msg2 = MIMEText(regenerated_text)
+                msg2["Subject"] = f"Regenerated News by NK Soldier ({model_name}): {soldier['soldier_id']}"
+                msg2["From"] = "Erosolar Stalker"
+                msg2["To"] = "MeganAmaris@dwt.com"
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                    server.login("sorry.erosolar@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
+                    server.send_message(msg2)
+                await asyncio.sleep(random.uniform(3, 7))
+            else:
+                pass
+        except Exception as e:
+            print(f"Error applying for {soldier['soldier_id']} on {model_name}: {e}")
+    print(f"Finished for {soldier['soldier_id']}: {soldier['name']}")
 
 def run_apply(soldier, linkedin, north_korean_army, start_ts):
     try:
@@ -171,20 +171,20 @@ def run_apply(soldier, linkedin, north_korean_army, start_ts):
         print(f"Thread pool error for {soldier['soldier_id']}: {e}")
 
 async def get_prompt_response(prompt, model_name):
+    response_text = ""
     try:
         stream = await client.chat.completions.create(
             model=model_name,
             messages=[{"role": "user", "content": prompt}],
             stream=True
         )
-        response_text = ""
         async for chunk in stream:
             delta = chunk.choices[0].delta.content
             if delta:
                 response_text += delta
-        return {"prompt": prompt, "response": response_text}
     except:
-        return {"prompt": prompt, "response": ""}
+        pass
+    return {"prompt": prompt, "response": response_text}
 
 def save_sample_prompts_responses(model_name, data):
     path = f"model/{model_name}"
