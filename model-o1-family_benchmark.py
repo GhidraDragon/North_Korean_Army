@@ -183,15 +183,13 @@ async def apply_sample_prompts(sample_prompts, model_name, start_ts):
     save_sample_prompts_responses(model_name, results, start_ts)
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python o1_apply.py <num_soldiers> [--models=model1,model2,...]")
-        sys.exit(1)
-    num_soldiers = int(sys.argv[1])
-    models = ["o1"]
-    for arg in sys.argv:
-        if arg.startswith("--models="):
-            model_str = arg.split("=", 1)[1]
-            models = model_str.split(",")
+    num_soldiers = 5
+    models = ["o1-preview"]
+    for arg in sys.argv[1:]:
+        if arg.startswith("--num_soldiers="):
+            num_soldiers = int(arg.split("=", 1)[1])
+        elif arg.startswith("--models="):
+            models = arg.split("=", 1)[1].split(",")
     start_ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     start_time = timeit.default_timer()
     soldiers = generate_nk_army(num_soldiers)
