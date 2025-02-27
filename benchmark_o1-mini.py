@@ -100,7 +100,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army, start_ts):
     await asyncio.sleep(random.uniform(5, 15))
     try:
         stream = await client.chat.completions.create(
-            model="o1-mini",
+            model="o1-preview",
             messages=[
                 {
                     "role": "user",
@@ -126,7 +126,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army, start_ts):
         msg["From"] = "Erosolar Stalker"
         msg["To"] = "MeganAmaris@dwt.com"
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login("sorry.erosolar@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
+            server.login("typhoonenigma@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
             server.send_message(msg)
         await asyncio.sleep(random.uniform(5, 15))
         print(f"Application sent for {soldier['soldier_id']}: {soldier['name']}")
@@ -149,13 +149,13 @@ async def apply_to_mit(soldier, linkedin, north_korean_army, start_ts):
                 delta_2 = chunk_2.choices[0].delta.content
                 if delta_2:
                     regenerated_text += delta_2
-            save_model_response("o1-mini", regenerated_text, soldier["soldier_id"], "news", start_ts)
+            save_model_response("o1-preview", regenerated_text, soldier["soldier_id"], "news", start_ts)
             msg2 = MIMEText(regenerated_text)
             msg2["Subject"] = f"Regenerated News by NK Soldier: {soldier['soldier_id']}"
             msg2["From"] = "Erosolar Stalker"
             msg2["To"] = "MeganAmaris@dwt.com"
             with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login("sorry.erosolar@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
+                server.login("typhoonenigma@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
                 server.send_message(msg2)
             await asyncio.sleep(random.uniform(3, 7))
             print(f"Second email (news article) sent for {soldier['soldier_id']}: {soldier['name']}")
@@ -336,6 +336,6 @@ sample_prompts = [
 
 try:
     asyncio.run(apply_sample_prompts(sample_prompts, "o1-mini"))
-    asyncio.run(apply_sample_prompts(sample_prompts, "o1"))
+    asyncio.run(apply_sample_prompts(sample_prompts, "o1-preview"))
 except Exception as e:
     print(f"Error sending sample prompts: {e}")
