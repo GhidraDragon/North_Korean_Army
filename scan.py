@@ -374,6 +374,41 @@ def fuzz_injection_tests(url):
             pass
     return fs
 
+def fuzz_injection_tests_chromedriver(url):
+    results = []
+    if not SELENIUM_AVAILABLE:
+        return results
+    pl = [
+        "' OR '1'='1",
+        "<script>alert(1)</script>",
+        "; ls;",
+        "&& cat /etc/passwd",
+        "<img src=x onerror=alert(2)>",
+        "'; DROP TABLE users; --",
+        "|| ping -c 4 127.0.0.1 ||"
+    ]
+    for payload in pl:
+        injected_url = f"{url}?inj={urllib.parse.quote(payload)}"
+        print(f"Running Chromedriver injection test: {injected_url}")
+        try:
+            o = Options()
+            o.add_argument("--headless=new")
+            # o.binary_location = "chrome/Google Chrome for Testing.app"
+            # s = ChromeService("chromedriver")
+            d = webdriver.Chrome(options=o)
+            d.get(injected_url)
+            time.sleep(random.uniform(1.0,2.0))
+            ps = d.page_source
+            found = scan_for_vuln_patterns(ps)
+            if found:
+                for f_ in found:
+                    print(f"Detected from Chromedriver injection test: {f_}")
+                results.extend(found)
+            d.quit()
+        except Exception as e:
+            print(f"Chromedriver injection test error on {injected_url}: {str(e)}")
+    return list(set(results))
+
 def repeated_disruption_test(url,attempts=3):
     f = []
     for _ in range(attempts):
@@ -396,41 +431,10 @@ def extract_js_functions(ht):
             d.append(mm.strip())
     return d
 
-def run_rl_injection(url, attempts=5):
-    payloads = [
-        "' OR '1'='1",
-        "<script>alert('RLXSS')</script>",
-        "&& ls &&",
-        "'; DROP TABLE users; --",
-        "|| ping -c 4 127.0.0.1 ||"
-    ]
-    Q = {p:0.0 for p in payloads}
-    alpha = 0.5
-    gamma = 0.9
-    found_flags = []
-    for i in range(attempts):
-        eps = 0.2
-        if random.random() < eps:
-            action = random.choice(payloads)
-        else:
-            action = max(Q, key=Q.get)
-        try:
-            tu = f"{url}?rlinj={urllib.parse.quote(action)}"
-            r = requests.get(tu,timeout=3,headers=CUSTOM_HEADERS)
-            c = r.text
-            ctf_matches = re.findall(r"(CTF\{.*?\})", c, re.IGNORECASE)
-            reward = len(ctf_matches)
-            if ctf_matches:
-                found_flags.extend(ctf_matches)
-            old_q = Q[action]
-            Q[action] = old_q + alpha*(reward + gamma*max(Q.values()) - old_q)
-        except:
-            pass
-    return list(set(found_flags))
-
 def scan_target(url):
     ds = analyze_query_params(url)
     ds.extend(fuzz_injection_tests(url))
+    ds.extend(fuzz_injection_tests_chromedriver(url))
     ds.extend(repeated_disruption_test(url))
     try:
         time.sleep(random.uniform(1.5,3.0))
@@ -504,12 +508,6 @@ def write_scan_results_text(rs,filename="scan_results.txt"):
                 f.write("  JS Functions:\n")
                 for funcdef in r["extracted_js_functions"]:
                     f.write(f"    {funcdef}\n")
-            if r.get("found_flags"):
-                f.write("  Found Flags:\n")
-                for flg in r["found_flags"]:
-                    f.write(f"    {flg}\n")
-            else:
-                f.write("  Found Flags: none\n")
             f.write("\n")
 
 def write_scan_results_json(rs):
@@ -528,8 +526,7 @@ def write_scan_results_json(rs):
             "status":None,
             "error":r.get("error",""),
             "detections":[],
-            "extracted_js_functions":r.get("extracted_js_functions",[]),
-            "found_flags":r.get("found_flags",[])
+            "extracted_js_functions":r.get("extracted_js_functions",[])
         }
         if "status_code" in r:
             i["status"] = f"{r.get('status_code','N/A')} {r.get('reason','')}"
@@ -560,9 +557,9 @@ def scan_with_chromedriver(url):
         time.sleep(random.uniform(1.0,2.0))
         o = Options()
         o.add_argument("--headless=new")
-        o.binary_location = "chrome/Google Chrome for Testing.app"
-        s = ChromeService("chromedriver")
-        d = webdriver.Chrome(service=s,options=o)
+        # o.binary_location = "chrome/Google Chrome for Testing.app"
+        # s = ChromeService("chromedriver-mac-arm64/chromedriver")
+        d = webdriver.Chrome(options=o)
         d.get(url)
         found_flags = []
         try:
@@ -609,6 +606,9 @@ def priority_bfs_crawl_and_scan(starts,max_depth=20):
     bot_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
     while q:
         d,u = heapq.heappop(q)
+        print(f"PriorityBFS Depth: {d}")
+        print(f"Full URL: {u}")
+        print("Details: scanning target, scanning with chromedriver, extracting links.")
         if u in visited:
             continue
         if d>max_depth:
@@ -617,7 +617,6 @@ def priority_bfs_crawl_and_scan(starts,max_depth=20):
         time.sleep(random.uniform(0.3,0.8))
         f1 = http_executor.submit(scan_target,u)
         f2 = bot_executor.submit(scan_with_chromedriver,u)
-        rl_flags = run_rl_injection(u, attempts=5)
         r1 = f1.result()
         r2 = f2.result()
         body1 = r1["body"] if "body" in r1 else ""
@@ -646,7 +645,6 @@ def priority_bfs_crawl_and_scan(starts,max_depth=20):
         combined_js = r1.get("extracted_js_functions",[])
         if body2:
             combined_js.extend(extract_js_functions(body2))
-        all_flags = r2.get("found_flags",[]) + rl_flags
         final = {
             "url":u,
             "server":r1.get("server","Unknown"),
@@ -655,7 +653,7 @@ def priority_bfs_crawl_and_scan(starts,max_depth=20):
             "error":r1.get("error","") or r2.get("error",""),
             "matched_details":combined_details,
             "extracted_js_functions":combined_js,
-            "found_flags": list(set(all_flags))
+            "found_flags": r2.get("found_flags",[])
         }
         results.append(final)
     http_executor.shutdown()
@@ -692,8 +690,6 @@ def main():
             print("  Found Flags:")
             for flg in r["found_flags"]:
                 print(f"    {flg}")
-        else:
-            print("  Found Flags: none")
     write_scan_results_text(all_results,"scan_results.txt")
     write_scan_results_json(all_results)
 
