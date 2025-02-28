@@ -1,5 +1,8 @@
+The most efficient Global Traversal PriorityBFS algorithm, featuring a search engine on top!
 
-![merged_apple_fbi_20250206_035259_bf957041](https://github.com/user-attachments/assets/1f10b79a-5005-4bb6-96ea-31933d5b791b)
+![image](https://github.com/user-attachments/assets/ccebd1ec-7e6b-4b8b-86dd-e18822a9a942)
+
+
 
 echo export OPENAI_API_KEY="key" into ur zsh or bash profile, or simply paste  export OPENAI_API_KEY="key" in, etc.
 
