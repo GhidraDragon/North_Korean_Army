@@ -23,11 +23,6 @@ https://erosolar.net/
 ![sam](https://github.com/user-attachments/assets/62d28f2a-7427-46dc-a86c-4c8fe5c520cf)
 
 
-https://www.infiniteprimality.com
-
-https://www.infiniteprimality.net
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
