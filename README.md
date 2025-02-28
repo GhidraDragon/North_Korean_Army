@@ -1,3 +1,8 @@
+Introduction to eggplant_emoji, both advanced and persistent! This is just a start!
+
+![image](https://github.com/user-attachments/assets/f4adedd0-fda7-4b6c-a6d4-807387e4a262)
+
+
 The most efficient Global Traversal PriorityBFS algorithm, featuring a search engine on top!
 
 ![image](https://github.com/user-attachments/assets/ccebd1ec-7e6b-4b8b-86dd-e18822a9a942)
