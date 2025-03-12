@@ -1,3 +1,9 @@
+**Revocation or Denial of H‑1B Petitions: USCIS may deny or revoke visa petitions if it is found that the employer did not meet statutory requirements.**
+
+https://flag.dol.gov/programs/LCA
+
+
+
 The Immigration Act of 1990 established the legal framework for the H‑1B program, which includes a set of requirements for employers—most notably, filing a Labor Condition Application (LCA) in which the employer attests to paying the prevailing wage and ensuring that the employment of H‑1B workers will not adversely affect the working conditions of U.S. workers. When employers fail to meet these requirements, the following enforcement mechanisms can be triggered:
 	•	Department of Labor (DOL) Audits and Investigations: The DOL is empowered to investigate employers for noncompliance with the wage and working condition attestations made in the LCA.
 	•	Civil Penalties and Fines: Employers who commit violations—especially if done willfully—can be subject to significant fines.
