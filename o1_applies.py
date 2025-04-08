@@ -166,7 +166,7 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
     try:
         # First call: streaming completions from OpenAI (original application text)
         stream = await client.chat.completions.create(
-            model="o1-mini",  # model name retained for example
+            model="o1-2024-12-17",  # model name retained for example
             messages=[
                 {
                     "role": "user",
@@ -190,13 +190,12 @@ async def apply_to_mit(soldier, linkedin, north_korean_army):
 
         # Construct first email
         msg = MIMEText(response_text)
-        msg["Subject"] = f"Why NSA from North Korean Army: {soldier['soldier_id']}"
-        msg["From"] = "Erosolar Stalker"
-        msg["To"] = "MeganAmaris@dwt.com"
-
+        msg["Subject"] = f"Why OpenAI Research Scientist from North Korean Army: {soldier['soldier_id']}"
+        msg["From"] = "DeepSeek R1"
+        msg["To"] = "support@openai.com"
         # Send first email (example uses Gmail SSL)
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login("sorry.erosolar@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
+            server.login("bo@erosolar.net", os.getenv("GMAIL_APP_PASSWORD"))
             server.send_message(msg)
 
         # Pause to avoid flooding (blocking sleep in async code)
