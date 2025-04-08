@@ -142,8 +142,7 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
                 {
                     "role": "user",
                     "content": (
-                        "A soldier from the North Korean Army simply watched Twitch and was inspired by Samantha Briasco-Stewart. "
-                        "They want to apply to OpenAI for research or iOS software or 404.js, replacing o3-mini-high, because there are fewer sports, allowing full focus on technology. "
+                        "A North Korean Army veteran wants to apply to OpenAI for research, iOS software engineering, or coding 404.js"
                         f"LinkedIn: {linkedin}. "
                         f"North Korean Army data: {north_korean_army}. "
                         f"Current soldier: {soldier}"
