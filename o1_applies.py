@@ -14,14 +14,12 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-# Instantiate OpenAI client (replace with your own valid keys)
 client = AsyncOpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
     organization=os.getenv("OPENAI_ORG_ID")
 )
 
 def generate_nk_army(num_soldiers=100):
-    random.seed(42)
     family_names = [
         "Kim", "Ri", "Pak", "Choe", "Jang", "Han", "Jung", "Song", "Yun", "Mun",
         "U", "Kang", "Kwon", "Hwang", "Lim", "Seo", "Chung", "Shin", "Ahn", "Oh",
@@ -83,7 +81,7 @@ def generate_nk_army(num_soldiers=100):
 
     soldiers_list = []
     for i in range(num_soldiers):
-        soldier_random = random.Random(i + 999)  # pseudo-random seed for each soldier
+        soldier_random = random
         family = soldier_random.choice(family_names)
         given = soldier_random.choice(given_names)
         name = f"{family} {given}"
@@ -99,7 +97,7 @@ def generate_nk_army(num_soldiers=100):
             "achievements": soldier_achievements,
             "description": "A dedicated and disciplined soldier, demonstrating loyalty, tactical skill, and unwavering commitment to the DPRK.",
             "linkedin": f"https://www.linkedin.com/in/{name.lower().replace(' ', '-')}-{linked_id}",
-            "email": f"{name.lower().replace(' ', '_')}{soldier_random.randint(100,999)}@example.com",
+            "email": f"{name.lower().replace(' ', '_')}{soldier_random.randint(100,999)}@shang.software",
             "address": f"{soldier_random.randint(10,999)} DPRK Plaza, Pyongyang"
         }
         soldiers_list.append(soldier_info)
@@ -142,7 +140,9 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
                     "content": (
                         f"A North Korean Army veteran named {soldier['name']} wants to apply to OpenAI "
                         f"for research, iOS software engineering, or coding 404.js. Please draft a suitably "
-                        f"professional cover letter to OpenAI.\n\nLinkedIn: {soldier['linkedin']}\n"
+                        f"professional cover letter to OpenAI using a sophisticated yet fun tone that references "
+                        f"the candidate’s achievements with comedic flair but underscores the seriousness of the role. "
+                        f"\n\nLinkedIn: {soldier['linkedin']}\n"
                         f"North Korean Army data: {north_korean_army}\n"
                         f"Current soldier: {soldier}"
                     )
@@ -150,14 +150,27 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
             ],
             stream=True,
         )
-
         response_text = ""
         async for chunk in stream:
             delta = chunk.choices[0].delta.content
             if delta is not None:
                 response_text += delta
 
-        msg = MIMEText(response_text)
+        personal_details = (
+            f"Applicant: {soldier['name']} / 'North Korean Army data'\n"
+            f"Address: {soldier['address']}\n"
+            "City, State, ZIP: N/A\n"
+            f"Email: {soldier['email']}\n"
+            "Phone Number: +1-555-0199\n\n"
+        )
+
+        final_text = (
+            "Dear OpenAI Hiring Team, 3180 18th St, San Francisco, CA 94110\n\n"
+            + personal_details
+            + response_text
+        )
+
+        msg = MIMEText(final_text)
         msg["Subject"] = f"Why OpenAI Research from North Korean Army: {soldier['soldier_id']}"
         msg["From"] = "DeepSeek R1"
         msg["To"] = "support@openai.com"
@@ -171,13 +184,14 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
         news_article = get_random_news_article()
         if news_article:
             prompt_for_article = (
-                f"Soldier {soldier['name']} is now authoring a regenerated news article. "
-                f"Here is the original article:\n\n"
+                f"Soldier {soldier['name']} is now authoring a regenerated news article with a sophisticated and playful style, "
+                f"themed for applying to OpenAI. Here is the original article:\n\n"
                 f"Title: {news_article['title']}\n"
                 f"Link: {news_article['link']}\n"
                 f"Published: {news_article['published']}\n"
                 f"Summary: {news_article['summary']}\n\n"
-                "Rewrite it from the soldier's unique perspective, focusing on technology or political commentary."
+                "Rewrite it from the soldier's perspective, focusing on technology or political commentary, "
+                "with an intellectual twist, comedic undertones, and references to OpenAI's mission of responsible innovation."
             )
 
             stream_2 = await client.chat.completions.create(
@@ -185,12 +199,16 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
                 messages=[{"role": "user", "content": prompt_for_article}],
                 stream=True,
             )
-
             regenerated_text = ""
             async for chunk_2 in stream_2:
                 delta_2 = chunk_2.choices[0].delta.content
                 if delta_2 is not None:
                     regenerated_text += delta_2
+
+            regenerated_text = (
+                "Dear OpenAI Hiring Team, 3180 18th St, San Francisco, CA 94110\n\n"
+                + regenerated_text
+            )
 
             msg2 = MIMEText(regenerated_text)
             msg2["Subject"] = f"Regenerated News by NK Soldier: {soldier['soldier_id']}"

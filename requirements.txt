@@ -1,2 +1,4 @@
 openai
 feedparser
+pywebcopy
+lxml_html_clean
