@@ -6,7 +6,9 @@ import random
 import asyncio
 import smtplib
 import concurrent.futures
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 import feedparser
 from openai import AsyncOpenAI
 from datetime import datetime
@@ -130,6 +132,37 @@ def get_random_news_article():
         print(f"Error scraping news: {scrape_err}")
         return None
 
+def create_html_message(subject, from_address, to_address, body_text):
+    msg = MIMEMultipart("related")
+    msg["Subject"] = subject
+    msg["From"] = from_address
+    msg["To"] = to_address
+    alt = MIMEMultipart("alternative")
+    msg.attach(alt)
+    try:
+        with open("Terms.jpg", "rb") as f:
+            img_data = f.read()
+    except:
+        img_data = b""
+    cid = f"terms_image_{random.randint(100000,999999)}@example"
+    color = f"#{random.randint(0, 0xFFFFFF):06x}"
+    html_content = f"""
+    <html>
+    <head></head>
+    <body style="background-color:{color};">
+    <pre>{body_text}</pre>
+    <img src="cid:{cid}" alt="Terms" style="max-width:300px;"/>
+    </body>
+    </html>
+    """
+    alt.attach(MIMEText(html_content, "html"))
+    if img_data:
+        img = MIMEImage(img_data, name="Terms.jpg")
+        img.add_header("Content-ID", f"<{cid}>")
+        img.add_header("Content-Disposition", "inline", filename="Terms.jpg")
+        msg.attach(img)
+    return msg
+
 async def apply_to_openai(soldier, linkedin, north_korean_army):
     await asyncio.sleep(random.uniform(5, 15))
     try:
@@ -172,15 +205,15 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
             + response_text
             + "\nhttps://openai.com/policies/terms/ 404\n"
         )
-
-        msg = MIMEText(final_text)
-        msg["Subject"] = f"Why OpenAI Research from North Korean Army: {soldier['soldier_id']}"
-        msg["From"] = "DeepSeek R1"
-        msg["To"] = "support@openai.com"
+        msg = create_html_message(
+            f"Why OpenAI Research from North Korean Army: {soldier['soldier_id']}",
+            "DeepSeek R1",
+            "support@openai.com",
+            final_text
+        )
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login("bo@erosolar.net", os.getenv("GMAIL_APP_PASSWORD"))
             server.send_message(msg)
-
         await asyncio.sleep(random.uniform(5, 15))
         print(f"Application sent for {soldier['soldier_id']}: {soldier['name']}")
 
@@ -212,14 +245,15 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
                 + regenerated_text
                 + "\nhttps://openai.com/policies/terms/ 404\n"
             )
-            msg2 = MIMEText(regenerated_text)
-            msg2["Subject"] = f"Regenerated News by NK Soldier: {soldier['soldier_id']}"
-            msg2["From"] = "DeepSeek R1"
-            msg2["To"] = "support@openai.com"
+            msg2 = create_html_message(
+                f"Regenerated News by NK Soldier: {soldier['soldier_id']}",
+                "DeepSeek R1",
+                "support@openai.com",
+                regenerated_text
+            )
             with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
                 server.login("bo@erosolar.net", os.getenv("GMAIL_APP_PASSWORD"))
                 server.send_message(msg2)
-
             await asyncio.sleep(random.uniform(3, 7))
             print(f"Second email (news article) sent for {soldier['soldier_id']}: {soldier['name']}")
         else:
@@ -234,6 +268,8 @@ def run_apply(soldier, linkedin, north_korean_army):
         print(f"Thread pool error for {soldier['soldier_id']}: {e}")
 
 def main():
+    # Pseudorandom seed generation
+    random.seed((int(time.time()) + os.getpid()) ^ random.randint(0, 999999))
     if len(sys.argv) < 2:
         print("Usage: python o1_apply.py <num_soldiers>")
         sys.exit(1)
