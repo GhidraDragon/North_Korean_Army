@@ -132,7 +132,15 @@ def get_random_news_article():
         print(f"Error scraping news: {scrape_err}")
         return None
 
-def create_html_message(subject, from_address, to_address, body_text):
+def get_professional_color(seed_value):
+    palette = [
+        "#FFFFFF", "#F8F9FA", "#E9ECEF", "#DEE2E6",
+        "#CED4DA", "#ADB5BD", "#6C757D"
+    ]
+    random.seed(seed_value)
+    return random.choice(palette)
+
+def create_html_message(subject, from_address, to_address, body_text, color_seed=0):
     msg = MIMEMultipart("related")
     msg["Subject"] = subject
     msg["From"] = from_address
@@ -145,7 +153,7 @@ def create_html_message(subject, from_address, to_address, body_text):
     except:
         img_data = b""
     cid = f"terms_image_{random.randint(100000,999999)}@example"
-    color = f"#{random.randint(0, 0xFFFFFF):06x}"
+    color = get_professional_color(color_seed)
     html_content = f"""
     <html>
     <head></head>
@@ -205,11 +213,13 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
             + response_text
             + "\nhttps://openai.com/policies/terms/ 404\n"
         )
+        sid_number = int(soldier['soldier_id'].split('-')[-1])
         msg = create_html_message(
             f"Why OpenAI Research from North Korean Army: {soldier['soldier_id']}",
             "DeepSeek R1",
             "support@openai.com",
-            final_text
+            final_text,
+            color_seed=sid_number
         )
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login("bo@erosolar.net", os.getenv("GMAIL_APP_PASSWORD"))
@@ -249,7 +259,8 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
                 f"Regenerated News by NK Soldier: {soldier['soldier_id']}",
                 "DeepSeek R1",
                 "support@openai.com",
-                regenerated_text
+                regenerated_text,
+                color_seed=sid_number + 12345
             )
             with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
                 server.login("bo@erosolar.net", os.getenv("GMAIL_APP_PASSWORD"))
@@ -268,7 +279,6 @@ def run_apply(soldier, linkedin, north_korean_army):
         print(f"Thread pool error for {soldier['soldier_id']}: {e}")
 
 def main():
-    # Pseudorandom seed generation
     random.seed((int(time.time()) + os.getpid()) ^ random.randint(0, 999999))
     if len(sys.argv) < 2:
         print("Usage: python o1_apply.py <num_soldiers>")
