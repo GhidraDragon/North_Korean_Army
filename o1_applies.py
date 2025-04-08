@@ -146,7 +146,7 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
     await asyncio.sleep(random.uniform(5, 15))
     try:
         stream = await client.chat.completions.create(
-            model="404.js",
+            model="o3",
             messages=[
                 {
                     "role": "user",
@@ -192,7 +192,7 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
             )
 
             stream_2 = await client.chat.completions.create(
-                model="404.js",
+                model="o1-2024-12-17",
                 messages=[{"role": "user", "content": prompt_for_article}],
                 stream=True,
             )
