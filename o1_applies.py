@@ -103,44 +103,35 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 def get_random_news_article():
+    """
+    Fetch a random news item from a small pool of reputable RSS feeds (NYT, BBC, Al Jazeera).
+    Returns a dict with {title, link, published, summary} or None if it fails or is empty.
+    """
     sources = [
         "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
         "https://feeds.bbci.co.uk/news/rss.xml",
-        "https://www.aljazeera.com/xml/rss/all.xml",
-        "http://feeds.reuters.com/reuters/topNews",
-        "http://rss.cnn.com/rss/cnn_topstories.rss",
-        "https://www.theguardian.com/world/rss",
-        "https://feeds.a.dj.com/rss/RSSWorldNews.xml"
+        "https://www.aljazeera.com/xml/rss/all.xml"
     ]
-    articles = []
-    for source in sources:
-        try:
-            feed = feedparser.parse(source, request_timeout=10)
-            if feed.bozo:
-                logging.error("Error parsing feed: %s", source)
-                continue
-            if feed.entries:
-                articles.extend(feed.entries)
-        except Exception as e:
-            logging.exception("Error retrieving feed %s", source)
-    if not articles:
-        return None
-    entry = random.choice(articles)
-    title = getattr(entry, "title", "No Title")
-    link = getattr(entry, "link", "")
-    published = getattr(entry, "published", None) or getattr(entry, "updated", "No Publish Date")
-    summary = getattr(entry, "summary", "No Summary Available")
     try:
-        if hasattr(entry, "published_parsed") and entry.published_parsed:
-            published = datetime(*entry.published_parsed[:6]).isoformat()
-    except Exception:
-        logging.exception("Error parsing the published date")
-    return {
-        "title": title,
-        "link": link,
-        "published": published,
-        "summary": summary
-    }
+        selected_source = random.choice(sources)
+        feed = feedparser.parse(selected_source)
+        if not feed.entries:
+            return None
+        entry = random.choice(feed.entries)
+        # In some feeds, certain fields may be missing
+        title = getattr(entry, "title", "No Title")
+        link = getattr(entry, "link", "")
+        published = getattr(entry, "published", "No Publish Date")
+        summary = getattr(entry, "summary", "No Summary Available")
+        return {
+            "title": title,
+            "link": link,
+            "published": published,
+            "summary": summary
+        }
+    except Exception as scrape_err:
+        print(f"Error scraping news: {scrape_err}")
+        return None
 
 async def apply_to_openai(soldier, linkedin, north_korean_army):
     await asyncio.sleep(random.uniform(5, 15))
