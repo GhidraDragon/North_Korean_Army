@@ -9,6 +9,10 @@ import concurrent.futures
 from email.mime.text import MIMEText
 import feedparser
 from openai import AsyncOpenAI
+from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 # Instantiate OpenAI client (replace with your own valid keys)
 client = AsyncOpenAI(
@@ -79,10 +83,14 @@ def generate_nk_army(num_soldiers=100):
 
     soldiers_list = []
     for i in range(num_soldiers):
-        name = f"{random.choice(family_names)} {random.choice(given_names)}"
-        rank = random.choice(ranks)
-        unit = random.choice(units)
-        soldier_achievements = random.sample(achievements, k=random.randint(1, 2))
+        soldier_random = random.Random(i + 999)  # pseudo-random seed for each soldier
+        family = soldier_random.choice(family_names)
+        given = soldier_random.choice(given_names)
+        name = f"{family} {given}"
+        rank = soldier_random.choice(ranks)
+        unit = soldier_random.choice(units)
+        soldier_achievements = soldier_random.sample(achievements, k=soldier_random.randint(1, 2))
+        linked_id = soldier_random.randint(1000, 9999)
         soldier_info = {
             "soldier_id": f"NK-ARMY-{i+1:03d}",
             "name": name,
@@ -90,23 +98,14 @@ def generate_nk_army(num_soldiers=100):
             "unit": unit,
             "achievements": soldier_achievements,
             "description": "A dedicated and disciplined soldier, demonstrating loyalty, tactical skill, and unwavering commitment to the DPRK.",
-            "linkedin": f"https://www.linkedin.com/in/{name.lower().replace(' ', '-')}-{i+1:03d}"
+            "linkedin": f"https://www.linkedin.com/in/{name.lower().replace(' ', '-')}-{linked_id}",
+            "email": f"{name.lower().replace(' ', '_')}{soldier_random.randint(100,999)}@example.com",
+            "address": f"{soldier_random.randint(10,999)} DPRK Plaza, Pyongyang"
         }
         soldiers_list.append(soldier_info)
     return soldiers_list
 
-import random
-import logging
-import feedparser
-from datetime import datetime
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-
 def get_random_news_article():
-    """
-    Fetch a random news item from a small pool of reputable RSS feeds (NYT, BBC, Al Jazeera).
-    Returns a dict with {title, link, published, summary} or None if it fails or is empty.
-    """
     sources = [
         "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
         "https://feeds.bbci.co.uk/news/rss.xml",
@@ -118,7 +117,6 @@ def get_random_news_article():
         if not feed.entries:
             return None
         entry = random.choice(feed.entries)
-        # In some feeds, certain fields may be missing
         title = getattr(entry, "title", "No Title")
         link = getattr(entry, "link", "")
         published = getattr(entry, "published", "No Publish Date")
@@ -142,9 +140,10 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
                 {
                     "role": "user",
                     "content": (
-                        "A North Korean Army veteran wants to apply to OpenAI for research, iOS software engineering, or coding 404.js"
-                        f"LinkedIn: {linkedin}. "
-                        f"North Korean Army data: {north_korean_army}. "
+                        f"A North Korean Army veteran named {soldier['name']} wants to apply to OpenAI "
+                        f"for research, iOS software engineering, or coding 404.js. Please draft a suitably "
+                        f"professional cover letter to OpenAI.\n\nLinkedIn: {soldier['linkedin']}\n"
+                        f"North Korean Army data: {north_korean_army}\n"
                         f"Current soldier: {soldier}"
                     )
                 }
@@ -195,10 +194,10 @@ async def apply_to_openai(soldier, linkedin, north_korean_army):
 
             msg2 = MIMEText(regenerated_text)
             msg2["Subject"] = f"Regenerated News by NK Soldier: {soldier['soldier_id']}"
-            msg2["From"] = "Erosolar Stalker"
-            msg2["To"] = "MeganAmaris@dwt.com"
+            msg2["From"] = "DeepSeek R1"
+            msg2["To"] = "support@openai.com"
             with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login("sorry.erosolar@gmail.com", os.getenv("GMAIL_APP_PASSWORD"))
+                server.login("bo@erosolar.net", os.getenv("GMAIL_APP_PASSWORD"))
                 server.send_message(msg2)
 
             await asyncio.sleep(random.uniform(3, 7))
