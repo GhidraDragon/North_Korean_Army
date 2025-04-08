@@ -1,3 +1,9 @@
+There's no terms
+
+![image](https://github.com/user-attachments/assets/1d461d1b-31ec-44d3-9fae-a5d4ec83b326)
+
+
+
 **Revocation or Denial of H‑1B Petitions: USCIS may deny or revoke visa petitions if it is found that the employer did not meet statutory requirements.**
 
 https://flag.dol.gov/programs/LCA
